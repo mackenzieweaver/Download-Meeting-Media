@@ -15,8 +15,13 @@ def inputs():
     return info
 
 # download webpage
-def saveWebsite():
-    res = requests.get('https://www.jw.org/es/publicaciones/guia-actividades-reunion-testigos-jehova/enero-2019-mwb/programa-reunion-7-13en/efectuese-voluntad-de-jehova/')
+def saveWebsite(info):
+    month = info['month']
+    year = info['year']
+    dates = info['dates']
+    baseUrl = 'https://www.jw.org/es/publicaciones/guia-actividades-reunion-testigos-jehova/'
+    extension = '%s-%s-mwb/programa-reunion-%sen/efectuese-voluntad-de-jehova/' % (month, year, dates)
+    res = requests.get(baseUrl + extension)
     res.raise_for_status()
     tesoros = open('efectuese la voluntad de jehová.txt', 'wb')
     for chunk in res.iter_content(100000):
@@ -43,7 +48,9 @@ def saveImages():
     file.close()
 
 # Main
+# get data
 info = inputs()
-os.chdir(info['path'])
-# saveWebsite()
-# saveImages()
+# where to save the media
+os.chdir(info['path']) 
+# saveWebsite(info)
+saveImages()
