@@ -7,16 +7,11 @@ import requests, bs4, webbrowser, pprint, os
 
 # month, year, dates (Example: 7-13)
 def inputs():
-    justify = 10
     info = {'month': '', 'year': '', 'dates': '', 'path': ''}
-    print('Month: '.ljust(justify), end='')
-    info['month'] = input()
-    print('Year: '.ljust(justify), end='')
-    info['year'] = input()
-    print('Dates: '.ljust(justify), end='')
-    info['dates'] = input()
-    print('Save to: '.ljust(justify), end='')
-    info['path'] = input()
+    keys = list(info.keys())
+    for i in range(len(keys)):
+        print('%s: ' % keys[i], end='')
+        info[keys[i]] = input()
     return info
 
 # download webpage
@@ -50,10 +45,5 @@ def saveImages():
 # Main
 info = inputs()
 os.chdir(info['path'])
-
-
-
-
-
 # saveWebsite()
 # saveImages()
