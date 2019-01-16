@@ -5,15 +5,19 @@
 # imports
 import requests, bs4, webbrowser, pprint, os
 
-# language, month, year, dates (Example: 7-13)
+# month, year, dates (Example: 7-13)
 def inputs():
-    print('Month: ', end='')
-    month = input()
-    print('Year: ', end='')
-    year = input()
-    print('Dates: ', end='')
-    dates = input()
-    return month, year, dates
+    justify = 10
+    info = {'month': '', 'year': '', 'dates': '', 'path': ''}
+    print('Month: '.ljust(justify), end='')
+    info['month'] = input()
+    print('Year: '.ljust(justify), end='')
+    info['year'] = input()
+    print('Dates: '.ljust(justify), end='')
+    info['dates'] = input()
+    print('Save to: '.ljust(justify), end='')
+    info['path'] = input()
+    return info
 
 # download webpage
 def saveWebsite():
@@ -44,8 +48,12 @@ def saveImages():
     file.close()
 
 # Main
-directory = 'C:\\Users\\Mack W\\Documents\\Python\\personalProjects\\Meeting Media Downloader'
-os.chdir(directory)
-# week = inputs() # returns a tuple with the month, year, and dates (Example 7-13)
+info = inputs()
+os.chdir(info['path'])
+
+
+
+
+
 # saveWebsite()
 # saveImages()
