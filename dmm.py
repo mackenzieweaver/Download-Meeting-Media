@@ -15,42 +15,52 @@ def inputs():
     return info
 
 # download webpage
-def saveWebsite(info):
+def guia(info):
     month = info['month']
     year = info['year']
-    dates = info['dates']
-    baseUrl = 'https://www.jw.org/es/publicaciones/guia-actividades-reunion-testigos-jehova/'
-    extension = '%s-%s-mwb/programa-reunion-%sen/efectuese-voluntad-de-jehova/' % (month, year, dates)
-    res = requests.get(baseUrl + extension)
+    dates = info['dates']    
+    base = 'https://www.jw.org/es/publicaciones/guia-actividades-reunion-testigos-jehova/'
+    ext = '%s-%s-mwb/programa-reunion-%sen/' % (month, year, dates)
+    url = base + ext
+    res = requests.get(url)
     res.raise_for_status()
-    tesoros = open('efectuese la voluntad de jehová.txt', 'wb')
+    # workbook name
+    workbook = ('%s %s workbook.txt' % (month, dates))
+    file = open(workbook, 'wb')
     for chunk in res.iter_content(100000):
-        tesoros.write(chunk)
-    tesoros.close()
-
-def saveImages():
-    # make soup
-    file = open('efectuese la voluntad de jehová.txt', 'rb')
-    meetingSoup = bs4.BeautifulSoup(file, features="lxml")
-    # find links
-    imageElems = meetingSoup.select('aside li figure span[class]')
-    for i in range(len(imageElems)):
-        # open link
-        url = imageElems[i].get('data-zoom')
-        image = requests.get(url)
-        image.raise_for_status()    
-        # name and save file
-        imageFile = open('%d.jpg' % i, 'wb')
-        for chunk in image.iter_content(100000):
-            imageFile.write(chunk)
-        imageFile.close()
-    # close your files
+        file.write(chunk)
     file.close()
 
+def media(info):
+    month = info['month']
+    dates = info['dates'] 
+    # make soup
+    file = open(('%s %s workbook.txt' % (month, dates)), 'rb')
+    meetingSoup = bs4.BeautifulSoup(file, features="lxml")
+    # find links
+    # elems = meetingSoup.select('a[data-video]') # finds videos when it says 'el video'
+    elems = meetingSoup.select('em')
+    for i in range(len(elems)):       
+        print(elems[i])
+
 # Main
+
 # get data
-info = inputs()
+#info = inputs()
+info = {'month': 'enero', 'year': '2019', 'dates': '7-13', 'path':
+        'C:\\Users\\Mack W\\Documents\\Python\\personalProjects\\Meeting Media Downloader'}
+
 # where to save the media
-os.chdir(info['path']) 
-# saveWebsite(info)
-saveImages()
+os.chdir(info['path'])
+
+# Function calls
+# guia(info)
+media(info)
+
+# TODO
+'''
+line 42 - find out what element leads to media content
+'''
+
+
+
