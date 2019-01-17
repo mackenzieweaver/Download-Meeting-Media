@@ -6,11 +6,8 @@
 import requests, bs4, webbrowser, pprint, os
 
 # Dummy dictionary for testing
-info = {'month': 'enero', 'year': '2019', 'dates': '28en-3febr', 'path':
+info = {'month': 'enero', 'year': '2019', 'dates': '7-13', 'path':
         'C:\\Users\\Mack W\\Documents\\Python\\personalProjects\\Meeting Media Downloader'}
-
-# where to save the media
-os.chdir(info['path'])
 
 # month, year, dates (Example: 7-13)
 def inputs():
@@ -19,34 +16,39 @@ def inputs():
     for i in range(len(keys)):
         print('%s: ' % keys[i], end='')
         info[keys[i]] = input()
-    return info
+    return info    
 
-# download webpage
+# save workbook html
 def guia(info):
+    # all spanish workbooks start with this url
+    base = 'https://www.jw.org/es/publicaciones/guia-actividades-reunion-testigos-jehova'
+    # craft url using user input data
     month = info['month']
     year = info['year']
     dates = info['dates']    
-    ext = '/%s-%s-mwb/programa-reunion-%s/' % (month, year, dates)
-    base = 'https://www.jw.org/es/publicaciones/guia-actividades-reunion-testigos-jehova'
+    ext = '/%s-%s-mwb/programa-reunion-%sen/' % (month, year, dates)
+    # download the url
     url = base + ext
     res = requests.get(url)
     res.raise_for_status()
     # workbook name
     workbook = ('%s %s workbook.txt' % (month, dates))
+    # save to file
     file = open(workbook, 'wb')
     for chunk in res.iter_content(100000):
         file.write(chunk)
     file.close()
 
+# return urls of the meeting parts
 def mediaUrls(info):
     month = info['month']
     dates = info['dates']
     
-    # make soup
+    # make soup object to parse the html
     file = open(('%s %s workbook.txt' % (month, dates)), 'rb')
     meetingSoup = bs4.BeautifulSoup(file, features="lxml")
     
-    # find elements
+    # find elements (where the magic happens)
     elems = []
     elems += meetingSoup.select('a[class="pubSym-nwtsv"]') # introduction to bible books videos
     elems += meetingSoup.select('a[class="pubSym-mwb19"]') # tesoros y nuestra vida cristiana
@@ -55,9 +57,9 @@ def mediaUrls(info):
     elems += meetingSoup.select('a[class="pubSym-jy"]')    # Jesus-The Way jy book
     
     # find links
-    urls = []
-    for i in range(len(elems)):        
-        base = 'https://www.jw.org'
+    urls = []   
+    base = 'https://www.jw.org'
+    for i in range(len(elems)):
         ext = elems[i].get('href')
         if ext.startswith('/'):
             url = base + ext
@@ -66,15 +68,37 @@ def mediaUrls(info):
         urls.append(url)
     return urls
 
+def web2text(urls):
+    names = []
+    # download and name media files
+    for i in range(len(urls)):
+        res = requests.get(urls[i])
+        res.raise_for_status()
+        soup = bs4.BeautifulSoup(res.text, features="lxml")
+        elem = soup.select('h1')
+        if elem:
+            name = elem[0].getText() + '.txt'
+            names.append(name)
+            file = open(name, 'wb')
+            for chunk in res.iter_content(100000):
+                file.write(chunk)
+            file.close()
+    return names
+
 # Main
 # info = inputs()
+os.chdir(info['path'])
 # guia(info)
 urls = mediaUrls(info)
-print(urls)
+fileNames = web2text(urls)
+print(fileNames)
 
 # TODO
 '''
-
+new funtion
+downloads media from the urls
+which are
+provided by the mediaUrls function
 '''
 
 # Example: download video
